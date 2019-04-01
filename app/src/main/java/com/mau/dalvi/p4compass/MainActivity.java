@@ -38,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
     private String username;
     boolean bound;
 
+   // private StepHistoryList shlFragment;
     ListView userList;
     ArrayList<String> listitem;
     ArrayAdapter adapter;
@@ -78,6 +79,7 @@ public class MainActivity extends AppCompatActivity {
 
             adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, listitem);
             userList.setAdapter(adapter);
+            Log.d(TAG, "viewData: got here");
         }
     }
 
@@ -101,6 +103,10 @@ public class MainActivity extends AppCompatActivity {
     public void btnResetClicked() {
         resetHistory();
     }
+
+    public void btnHistoryClicked(){
+        viewData();
+       }
 
     public void bindService(Intent intent) {
         bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);

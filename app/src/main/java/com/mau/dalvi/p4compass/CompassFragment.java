@@ -109,6 +109,8 @@ public class CompassFragment extends Fragment implements SensorEventListener {
         btnHistory.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                dbHelper.readStepsEntries(mainActivity.getUsername());
+                mainActivity.btnHistoryClicked();
 
                 }
 

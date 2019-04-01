@@ -264,7 +264,9 @@ public class DBHelper extends SQLiteOpenHelper {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        Log.d(TAG, "readStepsEntries: " + mStepCountList);
         return mStepCountList;
+
     }
 
 
