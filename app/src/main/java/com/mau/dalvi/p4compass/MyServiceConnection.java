@@ -8,26 +8,26 @@ import android.os.IBinder;
 public class MyServiceConnection implements ServiceConnection {
 
     private StepCounter stepCounter;
-    private MainActivity ma;
+    private MainActivity mainActivity;
     private CompassFragment compassFragment;
 
 
-    public MyServiceConnection(CompassFragment compassFragment) {
-        this.compassFragment = compassFragment;
+    public MyServiceConnection(MainActivity mainActivity) {
+        this.mainActivity = mainActivity;
     }
+
     @Override
     public void onServiceConnected(ComponentName name, IBinder service) {
         StepCounter.LocalBinder binder = (StepCounter.LocalBinder) service;
 
-        stepCounter  = binder.getService();
-        stepCounter.mBound = true;
-        stepCounter.setListenerActivity(compassFragment);
 
+        mainActivity.stepCounter = binder.getService();
+        mainActivity.bound = true;
+        mainActivity.stepCounter.setListenerActivity(mainActivity);
     }
 
     @Override
     public void onServiceDisconnected(ComponentName name) {
-
-        stepCounter.mBound = false;
+        mainActivity.bound = false;
     }
 }
