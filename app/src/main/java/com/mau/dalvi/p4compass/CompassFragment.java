@@ -112,7 +112,7 @@ public class CompassFragment extends Fragment implements SensorEventListener {
                 dbHelper.readStepsEntries(mainActivity.getUsername());
                 mainActivity.btnHistoryClicked();
 
-                }
+            }
 
         });
 
@@ -124,10 +124,8 @@ public class CompassFragment extends Fragment implements SensorEventListener {
             }
         }, 1000, 1000);
 
-        addStep();
         return view;
     }
-
 
 
     public void onResume() {
@@ -146,21 +144,17 @@ public class CompassFragment extends Fragment implements SensorEventListener {
         Toast.makeText(getContext(), "Acc and Mag unregistered", Toast.LENGTH_SHORT).show();
     }
 
-
     public void setActivity(MainActivity activity) {
         this.mainActivity = activity;
     }
 
     public void addStep() {
         steps = (double) dbHelper.getUserSteps(mainActivity.getUsername(), dbHelper.getDate());
-        Log.d(TAG, "addStep: melons" + steps + " " + dbHelper.getDate() + " apples " + dbHelper.getDate());
 
         tvSteps.setText("Amount of steps: " + steps);
-        Log.d(TAG, "addStep: current number of steg " + steps);
 
         if (secondCounter != 0) {
             tvStepsSec.setText("Steps per second: " + (steps / secondCounter));
-            Log.d(TAG, "addStep: strawberries" + (steps / secondCounter));
         } else {
             tvStepsSec.setText("Steps per second: " + 0);
         }
@@ -221,13 +215,13 @@ public class CompassFragment extends Fragment implements SensorEventListener {
                 }
             }
         }
-            last_x = x;
-            last_y = y;
-            last_z = z;
-            isFirstValue = true;
+        last_x = x;
+        last_y = y;
+        last_z = z;
+        isFirstValue = true;
 
 
-        }
+    }
 
 
     @Override

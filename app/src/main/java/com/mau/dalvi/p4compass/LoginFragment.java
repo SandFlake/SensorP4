@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -18,8 +17,6 @@ import android.widget.Toast;
  * A simple {@link Fragment} subclass.
  */
 public class LoginFragment extends Fragment {
-
-    private static final String TAG = "LoginFragment";
 
     private EditText etUserName;
     private EditText etPassword;
@@ -38,7 +35,6 @@ public class LoginFragment extends Fragment {
         mainActivity = main;
     }
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, final ViewGroup container,
                              Bundle savedInstanceState) {
@@ -53,7 +49,7 @@ public class LoginFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if (etUserName.getText().toString().isEmpty() || etPassword.getText().toString().isEmpty()) {
-                    Toast.makeText(getActivity(), "Can't start without a name/password mate", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getActivity(), "Can't start without a name/password mate", Toast.LENGTH_SHORT).show();
                 } else {
                     username = etUserName.getText().toString();
                     password = etPassword.getText().toString();
@@ -76,7 +72,7 @@ public class LoginFragment extends Fragment {
                             startActivity();
                             mainActivity.btnLoginClicked();
                         } else {
-                            System.out.println("Password is wrong");
+                            Toast.makeText(getActivity(), "Wrong password", Toast.LENGTH_SHORT).show();
                         }
                     }
                 }

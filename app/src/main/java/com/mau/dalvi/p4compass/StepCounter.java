@@ -14,12 +14,13 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 
 public class StepCounter extends Service implements SensorEventListener {
 
     private static final String TAG = "StepCounter";
-
     private SensorManager sensorManager;
     private Sensor stepDetector;
     private DBHelper db;
@@ -34,23 +35,23 @@ public class StepCounter extends Service implements SensorEventListener {
     public void onCreate() {
         super.onCreate();
         mBinder = new LocalBinder();
-        Toast.makeText(this, "Service created", Toast.LENGTH_LONG).show();
+        Toast.makeText(this, "Service created", Toast.LENGTH_SHORT).show();
 
         sensorManager = (SensorManager) this.getSystemService(Context.SENSOR_SERVICE);
         if (sensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR) != null) {
-            Toast.makeText(this, "step detector found", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Step detector found", Toast.LENGTH_SHORT).show();
             stepDetector = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR);
         } else {
             Toast.makeText(this, "No step detector available", Toast.LENGTH_LONG).show();
         }
-
+        
         db = new DBHelper(this, null, null);
 
     }
 
 
     public int onStartCommand(Intent intent, int flags, int startID) {
-        Toast.makeText(this, "Services started", Toast.LENGTH_LONG).show();
+        Toast.makeText(this, "Service started", Toast.LENGTH_SHORT).show();
         return super.onStartCommand(intent, flags, startID);
 
     }
@@ -60,9 +61,9 @@ public class StepCounter extends Service implements SensorEventListener {
     }
 
     private String getDate() {
-        Calendar cal = Calendar.getInstance();
-        String date = cal.get(Calendar.DAY_OF_MONTH) + "/" + cal.get(Calendar.MONTH ) + "/" + cal.get(Calendar.YEAR);
-        Log.d(TAG, "Today's date: " + date);
+        Date c = Calendar.getInstance().getTime();
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+        String date = sdf.format(c);
         return date;
     }
 
@@ -86,28 +87,21 @@ public class StepCounter extends Service implements SensorEventListener {
     @Override
     public void onSensorChanged(SensorEvent event) {
 
-        Log.d(TAG, "onSensorChanged: steps since reboot " + String.valueOf(event.values[0]));
-
-
         double timestampSeconds = event.timestamp / 1000000000;
         String date = getDate();
         if (!startTimeSet) {
             db.setStartTime(mainActivity.getUsername(), date, timestampSeconds);
-            Log.d(TAG, "onSensorChanged: " + mainActivity.getUsername());
+            Log.d(TAG, "onSensorChanged: starttime not set");
             startTimeSet = true;
         } else {
             if (!db.pickedDate(date)) {
-                Log.d(TAG, date + " does not exist");
-                Log.d(TAG, "Step registered");
                 db.addUserSteps(mainActivity.getUsername(), timestampSeconds);
+                Log.d(TAG, "onSensorChanged:  do we ever get here " + mainActivity.getUsername());
                 mainActivity.addStep();
-                Log.d(TAG, "steps added to " + date);
             } else {
-                Log.d(TAG, date + " exists!");
-                Log.d(TAG, "Step registered");
                 db.updateUserSteps(mainActivity.getUsername(), getDate());
+                Log.d(TAG, "onSensorChanged: start time set no date picked");
                 mainActivity.addStep();
-                Log.d(TAG, "steps updated on " + date);
             }
         }
 

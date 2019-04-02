@@ -3,41 +3,38 @@ package com.mau.dalvi.p4compass;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.CursorIndexOutOfBoundsException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
-import android.widget.ArrayAdapter;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 
 public class DBHelper extends SQLiteOpenHelper {
 
-    private static final String TAG = "DatabaseHelperDude";
-    private static final int DATABASE_VERSION = 4;
-    private static final String DATABASE_NAME = "StepsDatabase.db";
-
     private ArrayList<DateStepsModel> DateStepsModel;
+    private static final String TAG = "DatabaseHelperDude";
+    private static final int databaseVersion = 6;
+    private static final String databaseName = "StepsDatabase.db";
 
-
-
-    private static final String TABLE_STEPS_SUMMARY = "StepsSummary";
-    private static final String ID = "id";
-    private static final String NAME = "name";
-    private static final String PASSWORD = "password";
-    private static final String STEPS_COUNT = "stepscount";
-    private static final String START_TIME = "starttime";
-    private static final String CREATION_DATE = "creationdate";
+    private static final String UserStepTable = "StepsSummary";
+    private static final String id = "id";
+    private static final String name = "name";
+    private static final String password = "password";
+    private static final String stepCount = "stepscount";
+    private static final String startTime = "starttime";
+    private static final String creationDate = "creationdate";
 
     private static final String CREATE_TABLE_STEPS_SUMMARY = "CREATE TABLE " +
-            TABLE_STEPS_SUMMARY + "( " + ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + NAME + " TEXT, "
-            + PASSWORD + " TEXT, " + STEPS_COUNT + " INTEGER, " + START_TIME + " DOUBLE, "
-            + CREATION_DATE + " TEXT " + " );";
+            UserStepTable + "( " + id + " INTEGER PRIMARY KEY AUTOINCREMENT, " + name + " TEXT, "
+            + password + " TEXT, " + stepCount + " INTEGER, " + startTime + " DOUBLE, "
+            + creationDate + " TEXT " + " );";
 
 
     public DBHelper(Context context, String name, SQLiteDatabase.CursorFactory factory) {
-        super(context, DATABASE_NAME, factory, 4);
+        super(context, databaseName, factory, databaseVersion);
     }
 
     @Override
@@ -47,81 +44,26 @@ public class DBHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_STEPS_SUMMARY);
+        db.execSQL("DROP TABLE IF EXISTS " + UserStepTable);
         onCreate(db);
     }
 
-   /* public boolean createStepsEntry() {
-        boolean isDateAlreadyPresent = false;
-        boolean createSuccessful = false;
-        int currentDateStepCounts = 0;
-        Calendar mCalendar = Calendar.getInstance();
-        String todayDate = String.valueOf(mCalendar.get(Calendar.MONTH) + "/"
-                + String.valueOf(mCalendar.get(Calendar.DAY_OF_MONTH))) + "/"
-                + String.valueOf(mCalendar.get(Calendar.YEAR));
-
-        String selectQuery = "SELECT " + STEPS_COUNT + " FROM " + TABLE_STEPS_SUMMARY + " WHERE "
-                + CREATION_DATE + " = '" + todayDate + "'";
-
-        try {
-            SQLiteDatabase db = this.getReadableDatabase();
-            Cursor c = db.rawQuery(selectQuery, null);
-            if (c.moveToFirst()) {
-                do {
-                    isDateAlreadyPresent = true;
-                    currentDateStepCounts = c.getInt((c.getColumnIndex(STEPS_COUNT)));
-                } while (c.moveToNext());
-            }
-            db.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        try {
-            SQLiteDatabase db = this.getWritableDatabase();
-            ContentValues values = new ContentValues();
-            values.put(CREATION_DATE, todayDate);
-            if (isDateAlreadyPresent) {
-                values.put(STEPS_COUNT, ++currentDateStepCounts);
-                int row = db.update(TABLE_STEPS_SUMMARY, values, CREATION_DATE + " = '"
-                        + todayDate + "'", null);
-
-                if (row == 1) {
-                    createSuccessful = true;
-                }
-                db.close();
-            } else {
-                values.put(STEPS_COUNT, 1);
-                long row = db.insert(TABLE_STEPS_SUMMARY, null, values);
-
-                if (row != -1) {
-                    createSuccessful = true;
-                }
-                db.close();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return createSuccessful;
-    }*/
 
     public void addNewUser(User user) {
         SQLiteDatabase db = getWritableDatabase();
         ContentValues values = new ContentValues();
-        values.put(NAME, user.getName());
-        values.put(PASSWORD, user.getPassword());
-        values.put(STEPS_COUNT, 0);
-        values.put(START_TIME, 1);
-        values.put(CREATION_DATE, getDate());
-        db.insert(TABLE_STEPS_SUMMARY, null, values);
+        values.put(name, user.getName());
+        values.put(password, user.getPassword());
+        values.put(stepCount, 0);
+        values.put(startTime, 1);
+        values.put(creationDate, getDate());
+        db.insert(UserStepTable, null, values);
         db.close();
     }
 
     public boolean checkUserNameTaken(String username) {
-        Log.d(TAG, "checkUserNameTaken:  GOT HERE LEL");
         SQLiteDatabase db = getWritableDatabase();
-        Log.d(TAG, "checkUserNameTaken: GOT HERE ????????" + username);
-        String query = "SELECT * FROM " + TABLE_STEPS_SUMMARY + " WHERE " + NAME + " = '" + username + "'";
+        String query = "SELECT * FROM " + UserStepTable + " WHERE " + name + " = '" + username + "'";
         //Cursor point to a location in your results
         Cursor c = db.rawQuery(query, null);
         //Move to the first row in your results
@@ -130,25 +72,26 @@ public class DBHelper extends SQLiteOpenHelper {
         db.close();
         c.close();
 
-        Log.d(TAG, "checkUserNameTaken: SURELY YOU JEST" + username);
         return nameExists;
     }
 
     public String getDate() {
-        Calendar cal = Calendar.getInstance();
-        String date = cal.get(Calendar.DAY_OF_MONTH) + "/" + cal.get(Calendar.MONTH) + "/" + cal.get(Calendar.YEAR);
+        Date c = Calendar.getInstance().getTime();
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+        String date = sdf.format(c);
         return date;
     }
 
     public String getUserPassword(String username) {
         String userPassword = "";
         SQLiteDatabase db = getWritableDatabase();
-        String query = "SELECT * FROM " + TABLE_STEPS_SUMMARY + " WHERE " + NAME + " = '" + username + "'";
+        String query = "SELECT * FROM " + UserStepTable + " WHERE " + name + " = '" + username + "'";
         //Cursor point to a location in your results
         Cursor c = db.rawQuery(query, null);
         //Move to the first row in your results
         c.moveToFirst();
-        userPassword = c.getString(c.getColumnIndex(PASSWORD));
+        userPassword = c.getString(c.getColumnIndex(password));
+        Log.d(TAG, "getUserPassword: " + userPassword);
         db.close();
         c.close();
         return userPassword;
@@ -157,11 +100,11 @@ public class DBHelper extends SQLiteOpenHelper {
     public int getUserSteps(String username, String date) {
         int steps;
         SQLiteDatabase db = getWritableDatabase();
-        String query = "SELECT * FROM " + TABLE_STEPS_SUMMARY + " WHERE " + NAME + " = '" + username +
-                "' AND " + CREATION_DATE + " = '" + date + "'";
+        String query = "SELECT * FROM " + UserStepTable + " WHERE " + name + " = '" + username +
+                "' AND " + creationDate + " = '" + date + "'";
         Cursor c = db.rawQuery(query, null);
         if (c != null && c.moveToFirst()) {
-            steps = c.getInt(c.getColumnIndex(STEPS_COUNT));
+            steps = c.getInt(c.getColumnIndex(stepCount));
             return steps;
         } else {
             return 0;
@@ -170,30 +113,13 @@ public class DBHelper extends SQLiteOpenHelper {
 
     }
 
-    public double getUserStartTime(String username, String checkDate) {
-        double startTime = 0;
-        SQLiteDatabase db = getWritableDatabase();
-        String query = "SELECT starttime FROM " + TABLE_STEPS_SUMMARY + " WHERE " + NAME + " = '" + username + "' AND " + CREATION_DATE + " = '" + checkDate + "'";
-        //Cursor point to a location in your results
-        Cursor c = db.rawQuery(query, null);
-        //Move to the first row in your results
-        c.moveToFirst();
-        try {
-            startTime = c.getDouble(c.getColumnIndex(START_TIME));
-        } catch (CursorIndexOutOfBoundsException e) {
-            Log.d(TAG, e.getMessage());
-        }
-        db.close();
-        c.close();
-        return startTime;
-    }
 
     public void setStartTime(String username, String checkDate, double startTime) {
         double startTimeStamp = startTime;
         SQLiteDatabase db = getWritableDatabase();
         ContentValues values = new ContentValues();
-        values.put(START_TIME, startTimeStamp);
-        db.update(TABLE_STEPS_SUMMARY, values, NAME + " = '" + username + "' AND " + CREATION_DATE
+        values.put(DBHelper.startTime, startTimeStamp);
+        db.update(UserStepTable, values, name + " = '" + username + "' AND " + creationDate
                 + " = '" + checkDate + "'", null);
     }
 
@@ -202,10 +128,10 @@ public class DBHelper extends SQLiteOpenHelper {
         String date = getDate();
         SQLiteDatabase db = getWritableDatabase();
         ContentValues values = new ContentValues();
-        values.put(START_TIME, start);
-        values.put(STEPS_COUNT, steps);
-        values.put(CREATION_DATE, date);
-        db.update(TABLE_STEPS_SUMMARY, values, NAME + " = '" + username + "'", null);
+        values.put(startTime, start);
+        values.put(stepCount, steps);
+        values.put(creationDate, date);
+        db.update(UserStepTable, values, name + " = '" + username + "'", null);
     }
 
     public void resetUserSteps(String username) {
@@ -213,24 +139,23 @@ public class DBHelper extends SQLiteOpenHelper {
         double time = 1;
         SQLiteDatabase db = getWritableDatabase();
         ContentValues values = new ContentValues();
-        values.put(STEPS_COUNT, steps);
-        values.put(START_TIME, time);
-        db.update(TABLE_STEPS_SUMMARY, values, NAME + " = '" + username + "'", null);
+        values.put(stepCount, steps);
+        values.put(startTime, time);
+        db.update(UserStepTable, values, name + " = '" + username + "'", null);
     }
 
     public void updateUserSteps(String username, String checkdate) {
         int steps = getUserSteps(username, checkdate) + 1;
-        String mdate = getDate();
+        String date = getDate();
         SQLiteDatabase db = getWritableDatabase();
         ContentValues values = new ContentValues();
-        values.put(STEPS_COUNT, steps);
-        Log.d(TAG, "number of steps: " + steps);
-        db.update(TABLE_STEPS_SUMMARY, values, NAME + " = '" + username + "' AND " + CREATION_DATE + " = '" + mdate + "'", null);
+        values.put(stepCount, steps);
+        db.update(UserStepTable, values, name + " = '" + username + "' AND " + creationDate + " = '" + date + "'", null);
     }
 
     public boolean pickedDate(String datePicked) {
         SQLiteDatabase db = getWritableDatabase();
-        String query = "SELECT * FROM " + TABLE_STEPS_SUMMARY + " WHERE " + CREATION_DATE + " = '" + datePicked + "'";
+        String query = "SELECT * FROM " + UserStepTable + " WHERE " + creationDate + " = '" + datePicked + "'";
         Cursor c = db.rawQuery(query, null);
         c.moveToFirst();
         boolean dateExists = c.getCount() > 0;
@@ -244,7 +169,7 @@ public class DBHelper extends SQLiteOpenHelper {
         ArrayList<DateStepsModel> mStepCountList = new
                 ArrayList<DateStepsModel>();
         String selectQuery = "SELECT * FROM " +
-                TABLE_STEPS_SUMMARY + " WHERE " + NAME + " = '" + username + "''";
+                UserStepTable + " WHERE " + name + " = '" + username + "'";
         try {
             SQLiteDatabase db = this.getReadableDatabase();
             Cursor c = db.rawQuery(selectQuery, null);
@@ -253,9 +178,9 @@ public class DBHelper extends SQLiteOpenHelper {
                     DateStepsModel mDateStepsModel = new
                             DateStepsModel();
                     mDateStepsModel.mDate = c.getString
-                            ((c.getColumnIndex(CREATION_DATE)));
+                            ((c.getColumnIndex(creationDate)));
                     mDateStepsModel.mStepCount = c.getInt
-                            ((c.getColumnIndex(STEPS_COUNT)));
+                            ((c.getColumnIndex(stepCount)));
                     mStepCountList.add(mDateStepsModel);
                 } while (c.moveToNext());
             }
@@ -264,18 +189,9 @@ public class DBHelper extends SQLiteOpenHelper {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        Log.d(TAG, "readStepsEntries: " + mStepCountList);
         return mStepCountList;
 
     }
 
-
-    public Cursor viewData(){
-        SQLiteDatabase db = this.getReadableDatabase();
-        String query = "Select * from " + TABLE_STEPS_SUMMARY;
-        Cursor cursor = db.rawQuery(query, null);
-
-        return cursor;
-    }
 }
 

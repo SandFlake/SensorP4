@@ -35,13 +35,10 @@ public class MainActivity extends AppCompatActivity {
     MyServiceConnection serviceConnection;
     private FragmentManager fragMan;
     private CompassFragment compassFragment;
+    private StepHistoryList shlFragment;
     private String username;
     boolean bound;
 
-   // private StepHistoryList shlFragment;
-    ListView userList;
-    ArrayList<String> listitem;
-    ArrayAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,9 +48,6 @@ public class MainActivity extends AppCompatActivity {
         serviceConnection = new MyServiceConnection(this);
         dbHelper = new DBHelper(this, null, null);
 
-        listitem = new ArrayList<>();
-     //   userList = findViewById(R.id.user_list);
-        viewData();
 
         if (compassFragment == null) {
             compassFragment = new CompassFragment();
@@ -65,21 +59,10 @@ public class MainActivity extends AppCompatActivity {
             loginFragment.setActivity(this);
             setFragment(loginFragment, true);
         }
-    }
 
-    private void viewData() {
-        Cursor cursor = dbHelper.viewData();
-
-        if (cursor.getCount() == 0 ){
-            Log.d(TAG, "viewData: there is no data yet");
-        } else {
-            while (cursor.moveToNext()){
-                listitem.add(cursor.getString(1));
-            }
-
-            adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, listitem);
-            userList.setAdapter(adapter);
-            Log.d(TAG, "viewData: got here");
+        if (shlFragment == null){
+            shlFragment = new StepHistoryList();
+            shlFragment.setActivity(this);
         }
     }
 
@@ -105,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void btnHistoryClicked(){
-        viewData();
+        setFragment(shlFragment, true);
        }
 
     public void bindService(Intent intent) {
